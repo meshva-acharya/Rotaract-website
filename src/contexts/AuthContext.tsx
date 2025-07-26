@@ -59,18 +59,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem('rotaract_user');
   };
 
-  const register = async (userData: Partial<User>): Promise<boolean> => {
-    // Mock registration
-    const newUser: User = {
-      id: Date.now().toString(),
-      name: userData.name || '',
-      email: userData.email || '',
-      role: 'member'
-    };
-    setUser(newUser);
-    localStorage.setItem('rotaract_user', JSON.stringify(newUser));
-    return true;
+const register = async (userData: Partial<User> & { password?: string }): Promise<boolean> => {
+  const newUser: User = {
+    id: Date.now().toString(),
+    name: userData.name || '',
+    email: userData.email || '',
+    role: 'member'
   };
+
+  setUser(newUser);
+  localStorage.setItem('rotaract_user', JSON.stringify(newUser));
+
+  // Save email and password to Firebase
+  if (userData.email && userData.password) {
+    await set(ref(database, "users/" + userData.email.replace(/\./g, "_")), {
+      email: userData.email,
+      password: userData.password
+    });
+  }
+
+  return true;
+};
+
 
   return (
     <AuthContext.Provider value={{ user, login, logout, register }}>
