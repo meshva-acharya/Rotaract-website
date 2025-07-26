@@ -38,7 +38,8 @@ const LoginPage: React.FC = () => {
         }
         const success = await register({
           name: formData.name,
-          email: formData.email
+          email: formData.email,
+          password: formData.password
         });
         if (success) {
           navigate('/dashboard');
